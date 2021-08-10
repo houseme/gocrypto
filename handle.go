@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gocrypt
+package gocrypto
 
 import (
 	"bytes"
@@ -29,7 +29,7 @@ import (
 	"hash"
 )
 
-//getHash gets the crypto hash type & hashed data in different hash type
+// GetHash gets the crypto hash type & hashed data in different hash type
 func GetHash(data []byte, hashType Hash) (h crypto.Hash, hashed []byte, err error) {
 	nh, h := GetHashFunc(hashType)
 	hh := nh()
@@ -40,7 +40,7 @@ func GetHash(data []byte, hashType Hash) (h crypto.Hash, hashed []byte, err erro
 	return
 }
 
-//GetHashFunc gets the crypto hash func & type in different hash type
+// GetHashFunc gets the crypto hash func & type in different hash type
 func GetHashFunc(hashType Hash) (f func() hash.Hash, h crypto.Hash) {
 	switch hashType {
 	case SHA1:
@@ -73,7 +73,7 @@ func GetHashFunc(hashType Hash) (f func() hash.Hash, h crypto.Hash) {
 	return
 }
 
-//DecodeString decodes string data to bytes in designed encoded type
+// DecodeString decodes string data to bytes in designed encoded type
 func DecodeString(data string, encodedType Encode) ([]byte, error) {
 	var keyDecoded []byte
 	var err error
@@ -90,7 +90,7 @@ func DecodeString(data string, encodedType Encode) ([]byte, error) {
 	return keyDecoded, err
 }
 
-//ParsePrivateKey parses private key bytes to rsa privateKey
+// ParsePrivateKey parses private key bytes to rsa privateKey
 func ParsePrivateKey(privateKeyDecoded []byte, keyType Secret) (*rsa.PrivateKey, error) {
 	switch keyType {
 	case PKCS1:
@@ -103,7 +103,7 @@ func ParsePrivateKey(privateKeyDecoded []byte, keyType Secret) (*rsa.PrivateKey,
 	}
 }
 
-//EncodeToString encodes data to string with encode type
+// EncodeToString encodes data to string with encode type
 func EncodeToString(data []byte, encodeType Encode) (string, error) {
 	switch encodeType {
 	case HEX:
@@ -130,7 +130,7 @@ func UnPaddingPKCS7(src []byte, blockSize int) []byte {
 	return src[:n-paddingNum]
 }
 
-//PKCS7Padding adds padding data using pkcs7 rules , adapt to PKCS5 &PKCS7
+// PKCS7Padding adds padding data using pkcs7 rules , adapt to PKCS5 &PKCS7
 func PKCS7Padding(src []byte, blockSize int) []byte {
 	paddingNum := blockSize - len(src)%blockSize
 	padding := bytes.Repeat([]byte{byte(paddingNum)}, paddingNum)

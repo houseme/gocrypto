@@ -1,4 +1,4 @@
-// Copyright 2019 gocrypt Author. All Rights Reserved.
+// Copyright 2019 gocrypto Author. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,36 +18,36 @@ import (
 	"crypto/des"
 	"fmt"
 
-	"github.com/yuchenfw/gocrypt"
+	"github.com/houseme/gocrypto"
 )
 
 type desCrypt struct {
-	gocrypt.CipherCrypt
+	gocrypto.CipherCrypt
 }
 
-//NewDESCrypt news a DESCrypt pointer with key
+// NewDESCrypt news a DESCrypt pointer with key
 func NewDESCrypt(key []byte) *desCrypt {
 	block, err := des.NewCipher(key)
 	if err != nil {
 		panic(err)
 	}
-	return &desCrypt{CipherCrypt: gocrypt.CipherCrypt{Block: block}}
+	return &desCrypt{CipherCrypt: gocrypto.CipherCrypt{Block: block}}
 }
 
-//NewDESCrypt decodes key and then news a DESCrypt pointer with the key decoded
-func NewDesCryptWithDecode(key string, keyDataType gocrypt.Encode) *desCrypt {
-	data, err := gocrypt.DecodeString(key, keyDataType)
+// NewDesCryptWithDecode decodes key and then news a DESCrypt pointer with the key decoded
+func NewDesCryptWithDecode(key string, keyDataType gocrypto.Encode) *desCrypt {
+	data, err := gocrypto.DecodeString(key, keyDataType)
 	if err != nil {
-		panic(fmt.Sprintf("gocrypt decode key error : %v ", err))
+		panic(fmt.Sprintf("gocrypto decode key error : %v ", err))
 	}
 	return NewDESCrypt(data)
 }
 
 type tripleDESCrypt struct {
-	gocrypt.CipherCrypt
+	gocrypto.CipherCrypt
 }
 
-//NewTripleDESCrypt news a TripleDESCrypt pointer with key
+// NewTripleDESCrypt news a TripleDESCrypt pointer with key
 func NewTripleDESCrypt(key []byte) *tripleDESCrypt {
 	if len(key) != 24 {
 		panic("triple des key length must be 24")
@@ -56,14 +56,14 @@ func NewTripleDESCrypt(key []byte) *tripleDESCrypt {
 	if err != nil {
 		panic(err)
 	}
-	return &tripleDESCrypt{CipherCrypt: gocrypt.CipherCrypt{Block: block}}
+	return &tripleDESCrypt{CipherCrypt: gocrypto.CipherCrypt{Block: block}}
 }
 
-//NewTripleDesCryptWithDecode decodes key and then news a TripleDESCrypt pointer with the key decoded
-func NewTripleDesCryptWithDecode(key string, keyDataType gocrypt.Encode) *tripleDESCrypt {
-	data, err := gocrypt.DecodeString(key, keyDataType)
+// NewTripleDesCryptWithDecode decodes key and then news a TripleDESCrypt pointer with the key decoded
+func NewTripleDesCryptWithDecode(key string, keyDataType gocrypto.Encode) *tripleDESCrypt {
+	data, err := gocrypto.DecodeString(key, keyDataType)
 	if err != nil {
-		panic(fmt.Sprintf("gocrypt decode key error : %v ", err))
+		panic(fmt.Sprintf("gocrypto decode key error : %v ", err))
 	}
 	return NewTripleDESCrypt(data)
 }

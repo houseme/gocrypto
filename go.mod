@@ -1,3 +1,3 @@
-module github.com/yuchenfw/gocrypt
+module github.com/houseme/gocrypto
 
-go 1.11
+go 1.16

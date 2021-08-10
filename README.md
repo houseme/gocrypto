@@ -1,6 +1,7 @@
-# gocrypt使用说明
+# GoCrypto使用说明
 
 ## 特别说明
+based on https://github.com/farmerx/gorsa,https://github.com/yuchenfw/gocrypt Optimized the following points for packaging:
 
 此版本新增了AES、DES、3DES、HMAC、HASH等常见加/解密及hash获取方式，结构作了些调整，由之前的版本更新到此版本时一定要注意引用方法包名的变化。
 AES/DES块加密时，填充默认采用PKCS7 padding(如果块大小为64 位（8字节）时，此时PKCS7与PKCS5结果一致).
@@ -8,7 +9,7 @@ AES/DES块加密时，填充默认采用PKCS7 padding(如果块大小为64 位�
 ## get & import
 
 ```txt
-go get github.com/yuchenfw/gocrypt
+go get -u -v github.com/houseme/gocrypto
 ```
 
 ## 使用方法

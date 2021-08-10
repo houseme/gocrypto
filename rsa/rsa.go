@@ -20,35 +20,36 @@ import (
 	"crypto/x509"
 	"fmt"
 
-	"github.com/yuchenfw/gocrypt"
+	"github.com/houseme/gocrypto"
 )
 
 type rsaCrypt struct {
 	secretInfo RSASecret
 }
 
+// RSASecret .
 type RSASecret struct {
 	PublicKey          string
-	PublicKeyDataType  gocrypt.Encode
+	PublicKeyDataType  gocrypto.Encode
 	PrivateKey         string
-	PrivateKeyDataType gocrypt.Encode
-	PrivateKeyType     gocrypt.Secret
+	PrivateKeyDataType gocrypto.Encode
+	PrivateKeyType     gocrypto.Secret
 }
 
-//NewRSACrypt init with the RSA secret info
+// NewRSACrypt init with the RSA secret info
 func NewRSACrypt(secretInfo RSASecret) *rsaCrypt {
 	return &rsaCrypt{secretInfo: secretInfo}
 }
 
-//Encrypt encrypts the given message with public key
-//src the original data
-//outputDataType the encode type of encrypted data ,such as Base64,HEX
-func (rc *rsaCrypt) Encrypt(src string, outputDataType gocrypt.Encode) (dst string, err error) {
+// Encrypt encrypts the given message with public key
+// src the original data
+// outputDataType the encode type of encrypted data ,such as Base64,HEX
+func (rc *rsaCrypt) Encrypt(src string, outputDataType gocrypto.Encode) (dst string, err error) {
 	secretInfo := rc.secretInfo
 	if secretInfo.PublicKey == "" {
 		return "", fmt.Errorf("secretInfo PublicKey can't be empty")
 	}
-	pubKeyDecoded, err := gocrypt.DecodeString(secretInfo.PublicKey, secretInfo.PublicKeyDataType)
+	pubKeyDecoded, err := gocrypto.DecodeString(secretInfo.PublicKey, secretInfo.PublicKeyDataType)
 	if err != nil {
 		return
 	}
@@ -61,26 +62,26 @@ func (rc *rsaCrypt) Encrypt(src string, outputDataType gocrypt.Encode) (dst stri
 	if err != nil {
 		return
 	}
-	return gocrypt.EncodeToString(dataEncrypted, outputDataType)
+	return gocrypto.EncodeToString(dataEncrypted, outputDataType)
 }
 
-//Decrypt decrypts a plaintext using private key
-//src the encrypted data with public key
-//srcType the encode type of encrypted data ,such as Base64,HEX
-func (rc *rsaCrypt) Decrypt(src string, srcType gocrypt.Encode) (dst string, err error) {
+// Decrypt decrypts a plaintext using private key
+// src the encrypted data with public key
+// srcType the encode type of encrypted data ,such as Base64,HEX
+func (rc *rsaCrypt) Decrypt(src string, srcType gocrypto.Encode) (dst string, err error) {
 	secretInfo := rc.secretInfo
 	if secretInfo.PrivateKey == "" {
 		return "", fmt.Errorf("secretInfo PrivateKey can't be empty")
 	}
-	privateKeyDecoded, err := gocrypt.DecodeString(secretInfo.PrivateKey, secretInfo.PrivateKeyDataType)
+	privateKeyDecoded, err := gocrypto.DecodeString(secretInfo.PrivateKey, secretInfo.PrivateKeyDataType)
 	if err != nil {
 		return
 	}
-	prvKey, err := gocrypt.ParsePrivateKey(privateKeyDecoded, secretInfo.PrivateKeyType)
+	prvKey, err := gocrypto.ParsePrivateKey(privateKeyDecoded, secretInfo.PrivateKeyType)
 	if err != nil {
 		return
 	}
-	decodeData, err := gocrypt.DecodeString(src, srcType)
+	decodeData, err := gocrypto.DecodeString(src, srcType)
 	if err != nil {
 		return
 	}
@@ -92,24 +93,24 @@ func (rc *rsaCrypt) Decrypt(src string, srcType gocrypt.Encode) (dst string, err
 	return string(dataDecrypted), nil
 }
 
-//Sign calculates the signature of input data with the hash type & private key
-//src the original unsigned data
-//hashType the type of hash ,such as MD5,SHA1...
-//outputDataType the encode type of sign data ,such as Base64,HEX
-func (rc *rsaCrypt) Sign(src string, hashType gocrypt.Hash, outputDataType gocrypt.Encode) (dst string, err error) {
+// Sign calculates the signature of input data with the hash type & private key
+// src the original unsigned data
+// hashType the type of hash ,such as MD5,SHA1...
+// outputDataType the encode type of sign data ,such as Base64,HEX
+func (rc *rsaCrypt) Sign(src string, hashType gocrypto.Hash, outputDataType gocrypto.Encode) (dst string, err error) {
 	secretInfo := rc.secretInfo
 	if secretInfo.PrivateKey == "" {
 		return "", fmt.Errorf("secretInfo PrivateKey can't be empty")
 	}
-	privateKeyDecoded, err := gocrypt.DecodeString(secretInfo.PrivateKey, secretInfo.PrivateKeyDataType)
+	privateKeyDecoded, err := gocrypto.DecodeString(secretInfo.PrivateKey, secretInfo.PrivateKeyDataType)
 	if err != nil {
 		return
 	}
-	prvKey, err := gocrypt.ParsePrivateKey(privateKeyDecoded, secretInfo.PrivateKeyType)
+	prvKey, err := gocrypto.ParsePrivateKey(privateKeyDecoded, secretInfo.PrivateKeyType)
 	if err != nil {
 		return
 	}
-	cryptoHash, hashed, err := gocrypt.GetHash([]byte(src), hashType)
+	cryptoHash, hashed, err := gocrypto.GetHash([]byte(src), hashType)
 	if err != nil {
 		return
 	}
@@ -117,20 +118,20 @@ func (rc *rsaCrypt) Sign(src string, hashType gocrypt.Hash, outputDataType gocry
 	if err != nil {
 		return
 	}
-	return gocrypt.EncodeToString(signature, outputDataType)
+	return gocrypto.EncodeToString(signature, outputDataType)
 }
 
-//VerifySign verifies input data whether match the sign data with the public key
-//src the original unsigned data
-//signedData the data signed with private key
-//hashType the type of hash ,such as MD5,SHA1...
-//signDataType the encode type of sign data ,such as Base64,HEX
-func (rc *rsaCrypt) VerifySign(src string, hashType gocrypt.Hash, signedData string, signDataType gocrypt.Encode) (bool, error) {
+// VerifySign verifies input data whether match the sign data with the public key
+// src the original unsigned data
+// signedData the data signed with private key
+// hashType the type of hash ,such as MD5,SHA1...
+// signDataType the encode type of sign data ,such as Base64,HEX
+func (rc *rsaCrypt) VerifySign(src string, hashType gocrypto.Hash, signedData string, signDataType gocrypto.Encode) (bool, error) {
 	secretInfo := rc.secretInfo
 	if secretInfo.PublicKey == "" {
 		return false, fmt.Errorf("secretInfo PublicKey can't be empty")
 	}
-	publicKeyDecoded, err := gocrypt.DecodeString(secretInfo.PublicKey, secretInfo.PublicKeyDataType)
+	publicKeyDecoded, err := gocrypto.DecodeString(secretInfo.PublicKey, secretInfo.PublicKeyDataType)
 	if err != nil {
 		return false, err
 	}
@@ -138,11 +139,11 @@ func (rc *rsaCrypt) VerifySign(src string, hashType gocrypt.Hash, signedData str
 	if err != nil {
 		return false, err
 	}
-	cryptoHash, hashed, err := gocrypt.GetHash([]byte(src), hashType)
+	cryptoHash, hashed, err := gocrypto.GetHash([]byte(src), hashType)
 	if err != nil {
 		return false, err
 	}
-	signDecoded, err := gocrypt.DecodeString(signedData, signDataType)
+	signDecoded, err := gocrypto.DecodeString(signedData, signDataType)
 	if err = rsa.VerifyPKCS1v15(pubKey.(*rsa.PublicKey), cryptoHash, hashed, signDecoded); err != nil {
 		return false, err
 	}

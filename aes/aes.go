@@ -1,4 +1,4 @@
-// Copyright 2019 gocrypt Author. All Rights Reserved.
+// Copyright 2019 gocrypto Author. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,25 +18,27 @@ import (
 	"crypto/aes"
 	"fmt"
 
-	"github.com/yuchenfw/gocrypt"
+	"github.com/houseme/gocrypto"
 )
 
 type aesCrypt struct {
-	gocrypt.CipherCrypt
+	gocrypto.CipherCrypt
 }
 
+// NewAESCrypt .
 func NewAESCrypt(key []byte) *aesCrypt {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		panic(err)
 	}
-	return &aesCrypt{CipherCrypt: gocrypt.CipherCrypt{Block: block}}
+	return &aesCrypt{CipherCrypt: gocrypto.CipherCrypt{Block: block}}
 }
 
-func NewAESCryptWithDecode(key string, keyDataType gocrypt.Encode) *aesCrypt {
-	data, err := gocrypt.DecodeString(key, keyDataType)
+// NewAESCryptWithDecode .
+func NewAESCryptWithDecode(key string, keyDataType gocrypto.Encode) *aesCrypt {
+	data, err := gocrypto.DecodeString(key, keyDataType)
 	if err != nil {
-		panic(fmt.Sprintf("gocrypt decode key error : %v ", err))
+		panic(fmt.Sprintf("gocrypto decode key error : %v ", err))
 	}
 	return NewAESCrypt(data)
 }
