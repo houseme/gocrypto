@@ -1,7 +1,12 @@
 # GoCrypto使用说明
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/houseme/gocrypto.svg)](https://pkg.go.dev/github.com/houseme/gocrypto)
+[![GoCrypto CI](https://github.com/houseme/gocrypto/actions/workflows/go.yml/badge.svg)](https://github.com/houseme/gocrypto/actions/workflows/go.yml)
+[![GitHub](https://img.shields.io/github/license/houseme/gocrypto)](https://github.com/houseme/gocrypto)
+![GitHub go.mod Go version (branch)](https://img.shields.io/github/go-mod/go-version/houseme/gocrypto/main)
+
 ## 特别说明
-based on https://github.com/farmerx/gorsa,https://github.com/yuchenfw/gocrypt Optimized the following points for packaging:
+based on https://github.com/farmerx/gorsa, https://github.com/yuchenfw/gocrypt Optimized the following points for packaging:
 - Optimization of public and private keys requires registration and initialization in advance.
 - The encryption machine does not perform base64 processing, and avoids secondary encapsulation of base64 during cross-program transfer or storage
 - The incoming return uses the string type uniformly to avoid conversion trouble
