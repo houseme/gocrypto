@@ -13,11 +13,12 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/pem"
 	"errors"
 	"io"
 	"io/ioutil"
 	"math/big"
+
+	"github.com/houseme/gocrypto"
 )
 
 var (
@@ -38,14 +39,17 @@ var (
 )
 
 // 设置公钥
-func getPubKey(publicKey []byte) (*rsa.PublicKey, error) {
+func getPubKey(publicKey string, pubType gocrypto.Encode) (*rsa.PublicKey, error) {
 	// decode public key
-	block, _ := pem.Decode(publicKey)
-	if block == nil {
-		return nil, errors.New("get public key error")
+	if publicKey == "" {
+		return nil, errors.New("secretInfo PublicKey can't be empty")
+	}
+	pubKeyDecoded, err := gocrypto.DecodeString(publicKey, pubType)
+	if err != nil {
+		return nil, err
 	}
 	// x509 parse public key
-	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+	pub, err := x509.ParsePKIXPublicKey(pubKeyDecoded)
 	if err != nil {
 		return nil, err
 	}
@@ -53,37 +57,34 @@ func getPubKey(publicKey []byte) (*rsa.PublicKey, error) {
 }
 
 // 设置私钥
-func getPriKey(privateKey []byte) (*rsa.PrivateKey, error) {
-	block, _ := pem.Decode(privateKey)
-	if block == nil {
-		return nil, errors.New("get private key error")
+func getPriKey(privateKey string, priType gocrypto.Encode, priKeyType gocrypto.Secret) (*rsa.PrivateKey, error) {
+	if privateKey == "" {
+		return nil, errors.New("PrivateKey can't be empty")
 	}
-	pri, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err == nil {
-		return pri, nil
-	}
-	pri2, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+
+	privateKeyDecoded, err := gocrypto.DecodeString(privateKey, priType)
 	if err != nil {
 		return nil, err
 	}
-	return pri2.(*rsa.PrivateKey), nil
+
+	return gocrypto.ParsePrivateKey(privateKeyDecoded, priKeyType)
 }
 
 // 公钥加密或解密byte
-func pubKeyByte(pub *rsa.PublicKey, in []byte, isEncrytp bool) ([]byte, error) {
+func pubKeyByte(pub *rsa.PublicKey, in []byte, isEncrypt bool) ([]byte, error) {
 	k := (pub.N.BitLen() + 7) / 8
-	if isEncrytp {
+	if isEncrypt {
 		k = k - 11
 	}
 	if len(in) <= k {
-		if isEncrytp {
+		if isEncrypt {
 			return rsa.EncryptPKCS1v15(rand.Reader, pub, in)
 		}
 		return pubKeyDecrypt(pub, in)
 	}
 	iv := make([]byte, k)
 	out := bytes.NewBuffer(iv)
-	if err := pubKeyIO(pub, bytes.NewReader(in), out, isEncrytp); err != nil {
+	if err := pubKeyIO(pub, bytes.NewReader(in), out, isEncrypt); err != nil {
 		return nil, err
 	}
 	return ioutil.ReadAll(out)

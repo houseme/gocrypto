@@ -10,6 +10,8 @@ import (
 	"math/big"
 	"reflect"
 	"testing"
+
+	"github.com/houseme/gocrypto"
 )
 
 // @Project: gocrypto
@@ -107,6 +109,8 @@ func applyPriEPubD() error {
 }
 
 func TestNewRSASecurity(t *testing.T) {
+	Pubkey := `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCPy4YK40n8oVUkOl433qLcu51ju//vf6aQag8F8gqANqjZXiC/YqbQ59MGTjP/5/NWt4cM/K9Ofb5pdYHfLVbSLOI7cQcmIHCR22HENNYh0gKE801+OrBPwMUJnfTKSIYl0p3zbawcf63AcGTmkdMqS5zKm82/oFd0xC/DgduZdwIDAQAB`
+	Pirvatekey = `MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAI/LhgrjSfyhVSQ6Xjfeoty7nWO7/+9/ppBqDwXyCoA2qNleIL9iptDn0wZOM//n81a3hwz8r059vml1gd8tVtIs4jtxByYgcJHbYcQ01iHSAoTzTX46sE/AxQmd9MpIhiXSnfNtrBx/rcBwZOaR0ypLnMqbzb+gV3TEL8OB25l3AgMBAAECgYBJ3wCpr0JfKnKW/fVRNmrsguXEStycqTNklVfKciG65Fmx8Y1ZRND2GWJrptlH6l00e2xB274j0K11eAyUHrKu16MR4Kb79M08uTu3ktSoHxRVPO3OK2My9t9y5baVec88oIboOx0M/lIY7xm1boCDuoVfqmKo618xaMKmFuHcQQJBANxOeCyuuiRk9NgriTLuyt7CEXOwzCkEVfv8zJcfB6Hfg5TsfTk1+jkEhlR49ovTZ+jRdTR7AZkSCfDxEnnpKa8CQQCnF6ENeIj4qQckDmle0ZIb0kl0s1S3qho8WqvhFETDBbjHsB4joeZVY33ssrF1e/x0bSc8a7+YMjB1uC0kO6a5AkBvL9tPEdA4VguMnkxcPFB/JIsSTIR9nwaWavwGuU5s0BXkr4ZzvV5QMIxrTbGA2G10/2Gb3wjrbENAKyscBCVZAkB0AZey/og5+0AV7FuDlQRXhHuzJf4fNV3ZoSnLroK+024iVUfXfUOo7NY0SyuhYV84hb/D1xrB07aJREEy8qchAkEAw3eiSON0FSdgRDl4b+EnJdUfWG77Amh5A6quWbx7LJ8E0QrDiM3qVKexoKPnCnRB1oGJgyy47rrhzmj05Dz4kg==`
 	type args struct {
 		pubStr string
 		priStr string
@@ -123,17 +127,17 @@ func TestNewRSASecurity(t *testing.T) {
 				pubStr: Pubkey,
 				priStr: Pirvatekey,
 			},
-			want: NewRSASecurity(Pubkey, Pirvatekey),
+			want: NewRSASecurity(Pubkey, Pirvatekey, gocrypto.Base64, gocrypto.Base64, gocrypto.PKCS8),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewRSASecurity(tt.args.pubStr, tt.args.priStr); !reflect.DeepEqual(got, tt.want) {
+			if got := NewRSASecurity(tt.args.pubStr, tt.args.priStr, gocrypto.Base64, gocrypto.Base64, gocrypto.PKCS8); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewRSASecurity() = %v, want %v", got, tt.want)
 			}
 		})
 	}
-	r := NewRSASecurity(Pubkey, Pirvatekey)
+	r := NewRSASecurity(Pubkey, Pirvatekey, gocrypto.Base64, gocrypto.Base64, gocrypto.PKCS8)
 	data := `hello world`
 	rsaData, err := r.PriKeyEncrypt([]byte(data))
 	if err != nil {
@@ -860,57 +864,57 @@ func Test_encrypt(t *testing.T) {
 	}
 }
 
-func Test_getPriKey(t *testing.T) {
-	type args struct {
-		privateKey []byte
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    *rsa.PrivateKey
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := getPriKey(tt.args.privateKey)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("getPriKey() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getPriKey() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_getPubKey(t *testing.T) {
-	type args struct {
-		publicKey []byte
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    *rsa.PublicKey
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := getPubKey(tt.args.publicKey)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("getPubKey() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getPubKey() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+// func Test_getPriKey(t *testing.T) {
+// 	type args struct {
+// 		privateKey []byte
+// 	}
+// 	tests := []struct {
+// 		name    string
+// 		args    args
+// 		want    *rsa.PrivateKey
+// 		wantErr bool
+// 	}{
+// 		// TODO: Add test cases.
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			got, err := getPriKey(tt.args.privateKey)
+// 			if (err != nil) != tt.wantErr {
+// 				t.Errorf("getPriKey() error = %v, wantErr %v", err, tt.wantErr)
+// 				return
+// 			}
+// 			if !reflect.DeepEqual(got, tt.want) {
+// 				t.Errorf("getPriKey() got = %v, want %v", got, tt.want)
+// 			}
+// 		})
+// 	}
+// }
+//
+// func Test_getPubKey(t *testing.T) {
+// 	type args struct {
+// 		publicKey []byte
+// 	}
+// 	tests := []struct {
+// 		name    string
+// 		args    args
+// 		want    *rsa.PublicKey
+// 		wantErr bool
+// 	}{
+// 		// TODO: Add test cases.
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			got, err := getPubKey(tt.args.publicKey)
+// 			if (err != nil) != tt.wantErr {
+// 				t.Errorf("getPubKey() error = %v, wantErr %v", err, tt.wantErr)
+// 				return
+// 			}
+// 			if !reflect.DeepEqual(got, tt.want) {
+// 				t.Errorf("getPubKey() got = %v, want %v", got, tt.want)
+// 			}
+// 		})
+// 	}
+// }
 
 func Test_leftPad(t *testing.T) {
 	type args struct {

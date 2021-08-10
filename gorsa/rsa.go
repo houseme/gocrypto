@@ -18,6 +18,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"io/ioutil"
+
+	"github.com/houseme/gocrypto"
 )
 
 // RSA 。
@@ -25,17 +27,28 @@ var RSA = &RSASecurity{}
 
 // RSASecurity 。
 type RSASecurity struct {
-	pubStr string          // 公钥字符串
-	priStr string          // 私钥字符串
-	pubKey *rsa.PublicKey  // 公钥
-	priKey *rsa.PrivateKey // 私钥
+	pubStr             string          // 公钥字符串
+	priStr             string          // 私钥字符串
+	pubKey             *rsa.PublicKey  // 公钥
+	priKey             *rsa.PrivateKey // 私钥
+	PublicKeyDataType  gocrypto.Encode
+	PrivateKeyDataType gocrypto.Encode
+	PrivateKeyType     gocrypto.Secret
 }
 
 // NewRSASecurity .
-func NewRSASecurity(pubStr, priStr string) *RSASecurity {
-	r := &RSASecurity{}
-	r.SetPublicKey(pubStr)
-	r.SetPrivateKey(priStr)
+func NewRSASecurity(pubStr, priStr string, pubType, priType gocrypto.Encode, priKeyType gocrypto.Secret) *RSASecurity {
+	r := &RSASecurity{
+		PublicKeyDataType:  pubType,
+		PrivateKeyType:     priKeyType,
+		PrivateKeyDataType: priType,
+	}
+	if err := r.SetPublicKey(pubStr); err != nil {
+		panic(err)
+	}
+	if err := r.SetPrivateKey(priStr); err != nil {
+		panic(err)
+	}
 	return r
 }
 
@@ -55,12 +68,12 @@ func (r *RSASecurity) SetPrivateKey(priStr string) (err error) {
 
 // GetPrivateKey *rsa.PublicKey
 func (r *RSASecurity) GetPrivateKey() (*rsa.PrivateKey, error) {
-	return getPriKey([]byte(r.priStr))
+	return getPriKey(r.priStr, r.PrivateKeyDataType, r.PrivateKeyType)
 }
 
 // GetPublicKey *rsa.PrivateKey
 func (r *RSASecurity) GetPublicKey() (*rsa.PublicKey, error) {
-	return getPubKey([]byte(r.pubStr))
+	return getPubKey(r.pubStr, r.PublicKeyDataType)
 }
 
 // PubKeyEncrypt 公钥加密

@@ -2,6 +2,10 @@
 
 ## 特别说明
 based on https://github.com/farmerx/gorsa,https://github.com/yuchenfw/gocrypt Optimized the following points for packaging:
+- Optimization of public and private keys requires registration and initialization in advance.
+- The encryption machine does not perform base64 processing, and avoids secondary encapsulation of base64 during cross-program transfer or storage
+- The incoming return uses the string type uniformly to avoid conversion trouble
+- Supports RSAWithSHA1 and RSAWithSHA256 signature verification algorithms
 
 此版本新增了AES、DES、3DES、HMAC、HASH等常见加/解密及hash获取方式，结构作了些调整，由之前的版本更新到此版本时一定要注意引用方法包名的变化。
 AES/DES块加密时，填充默认采用PKCS7 padding(如果块大小为64 位（8字节）时，此时PKCS7与PKCS5结果一致).
