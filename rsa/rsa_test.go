@@ -65,6 +65,17 @@ func TestRSACrypt(t *testing.T) {
 		if !verifySign {
 			t.Fatal("verifySign result failed")
 		}
+		encrypt, err = handle.EncryptByPriKey(rsaTest.data, rsaTest.encodeType)
+		if err != nil {
+			t.Fatalf("encrypt error : %v", err)
+		}
+		decrypt, err = handle.DecryptByPublic(encrypt, rsaTest.encodeType)
+		if err != nil {
+			t.Fatalf("decrypt error : %v", err)
+		}
+		if decrypt != rsaTest.data {
+			t.Fatalf("decrypt get result %s , want get %s ", decrypt, rsaTest.data)
+		}
 	}
 }
 
@@ -121,6 +132,17 @@ func BenchmarkRSACrypt(t *testing.B) {
 			}
 			if !verifySign {
 				t.Fatal("verifySign result failed")
+			}
+			encrypt, err = handle.EncryptByPriKey(rsaTest.data, rsaTest.encodeType)
+			if err != nil {
+				t.Fatalf("encrypt error : %v", err)
+			}
+			decrypt, err = handle.DecryptByPublic(encrypt, rsaTest.encodeType)
+			if err != nil {
+				t.Fatalf("decrypt error : %v", err)
+			}
+			if decrypt != rsaTest.data {
+				t.Fatalf("decrypt get result %s , want get %s ", decrypt, rsaTest.data)
 			}
 		}
 	}

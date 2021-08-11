@@ -15,6 +15,7 @@
 package rsa
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -144,8 +145,67 @@ func (rc *rsaCrypt) VerifySign(src string, hashType gocrypto.Hash, signedData st
 		return false, err
 	}
 	signDecoded, err := gocrypto.DecodeString(signedData, signDataType)
+	if err != nil {
+		return false, err
+	}
 	if err = rsa.VerifyPKCS1v15(pubKey.(*rsa.PublicKey), cryptoHash, hashed, signDecoded); err != nil {
 		return false, err
 	}
 	return true, nil
+}
+
+// EncryptByPriKey encrypts the given message with private key
+// src the original data
+// outputDataType the encode type of encrypted data ,such as Base64,HEX
+func (rc *rsaCrypt) EncryptByPriKey(src string, outputDataType gocrypto.Encode) (dst string, err error) {
+	secretInfo := rc.secretInfo
+	if secretInfo.PrivateKey == "" {
+		return "", fmt.Errorf("secretInfo PrivateKey can't be empty")
+	}
+	privateKeyDecoded, err := gocrypto.DecodeString(secretInfo.PrivateKey, secretInfo.PrivateKeyDataType)
+	if err != nil {
+		return
+	}
+	prvKey, err := gocrypto.ParsePrivateKey(privateKeyDecoded, secretInfo.PrivateKeyType)
+	if err != nil {
+		return
+	}
+
+	output := bytes.NewBuffer(nil)
+	err = priKeyIO(prvKey, bytes.NewReader([]byte(src)), output, true)
+	if err != nil {
+		return "", err
+	}
+
+	return gocrypto.EncodeToString(output.Bytes(), outputDataType)
+}
+
+// DecryptByPublic decrypts a plaintext using public key
+// src the encrypted data with private key
+// srcType the encode type of encrypted data ,such as Base64,HEX
+func (rc *rsaCrypt) DecryptByPublic(src string, srcType gocrypto.Encode) (dst string, err error) {
+	secretInfo := rc.secretInfo
+	if secretInfo.PublicKey == "" {
+		return "", fmt.Errorf("secretInfo PublicKey can't be empty")
+	}
+	pubKeyDecoded, err := gocrypto.DecodeString(secretInfo.PublicKey, secretInfo.PublicKeyDataType)
+	if err != nil {
+		return
+	}
+	pubKey, err := x509.ParsePKIXPublicKey(pubKeyDecoded)
+	if err != nil {
+		return
+	}
+
+	decodeData, err := gocrypto.DecodeString(src, srcType)
+	if err != nil {
+		return
+	}
+
+	output := bytes.NewBuffer(nil)
+	err = pubKeyIO(pubKey.(*rsa.PublicKey), bytes.NewReader(decodeData), output, false)
+	if err != nil {
+		return "", err
+	}
+	return output.String(), nil
 }
