@@ -7,7 +7,7 @@
 
 ## 特别说明
 
-based on https://github.com/farmerx/gorsa, https://github.com/yuchenfw/gocrypt Optimized the following points for
+based on [GoRSA](https://github.com/farmerx/gorsa), [GoCrypt](https://github.com/yuchenfw/gocrypt) Optimized the following points for
 packaging:
 
 - Optimization of public and private keys requires registration and initialization in advance.
@@ -21,9 +21,11 @@ packaging:
 
 ## get & import
 
-```txt
+```go
 go get -u -v github.com/houseme/gocrypto
 ```
+
+
 
 ## 使用方法
 
@@ -81,7 +83,7 @@ secretInfo := rsa.RSASecret{
 
 ### 加密、解密、签名、验签
 
-#### （1）RSA加密
+#### （1）RSA加密 
 
 加密指定字符串，并以指定编码格式输出结果
 
