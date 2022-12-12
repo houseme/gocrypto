@@ -15,7 +15,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"io"
-	"io/ioutil"
 	"math/big"
 
 	"github.com/houseme/gocrypto"
@@ -82,13 +81,15 @@ func pubKeyByte(pub *rsa.PublicKey, in []byte, isEncrypt bool) ([]byte, error) {
 		}
 		return pubKeyDecrypt(pub, in)
 	}
-	iv := make([]byte, k)
-	out := bytes.NewBuffer(iv)
+	var (
+		iv  = make([]byte, k)
+		out = bytes.NewBuffer(iv)
+	)
+
 	if err := pubKeyIO(pub, bytes.NewReader(in), out, isEncrypt); err != nil {
 		return nil, err
 	}
-	return ioutil.ReadAll(out)
-
+	return io.ReadAll(out)
 }
 
 // 私钥加密或解密byte
@@ -103,33 +104,36 @@ func priKeyByte(pri *rsa.PrivateKey, in []byte, isEncrypt bool) ([]byte, error) 
 		}
 		return rsa.DecryptPKCS1v15(rand.Reader, pri, in)
 	}
-	iv := make([]byte, k)
-	out := bytes.NewBuffer(iv)
+	var (
+		iv  = make([]byte, k)
+		out = bytes.NewBuffer(iv)
+	)
+
 	if err := priKeyIO(pri, bytes.NewReader(in), out, isEncrypt); err != nil {
 		return nil, err
 	}
-	return ioutil.ReadAll(out)
+	return io.ReadAll(out)
 }
 
 // 公钥加密或解密Reader
-func pubKeyIO(pub *rsa.PublicKey, in io.Reader, out io.Writer, isEncrypt bool) error {
+func pubKeyIO(pub *rsa.PublicKey, in io.Reader, out io.Writer, isEncrypt bool) (err error) {
 	k := (pub.N.BitLen() + 7) / 8
 	if isEncrypt {
 		k = k - 11
 	}
-	buf := make([]byte, k)
+
 	var (
-		b   []byte
-		err error
+		b    []byte
+		buf  = make([]byte, k)
+		size int
 	)
-	size := 0
+
 	for {
-		size, err = in.Read(buf)
-		if err != nil {
+		if size, err = in.Read(buf); err != nil {
 			if err == io.EOF {
 				return nil
 			}
-			return err
+			return
 		}
 		if size < k {
 			b = buf[:size]
@@ -142,34 +146,34 @@ func pubKeyIO(pub *rsa.PublicKey, in io.Reader, out io.Writer, isEncrypt bool) e
 			b, err = pubKeyDecrypt(pub, b)
 		}
 		if err != nil {
-			return err
+			return
 		}
 		if _, err = out.Write(b); err != nil {
-			return err
+			return
 		}
 	}
-	return nil
+	return
 }
 
 // 私钥加密或解密Reader
-func priKeyIO(pri *rsa.PrivateKey, r io.Reader, w io.Writer, isEncrypt bool) error {
+func priKeyIO(pri *rsa.PrivateKey, r io.Reader, w io.Writer, isEncrypt bool) (err error) {
 	k := (pri.N.BitLen() + 7) / 8
 	if isEncrypt {
 		k = k - 11
 	}
-	buf := make([]byte, k)
+
 	var (
-		b   []byte
-		err error
+		b    []byte
+		buf  = make([]byte, k)
+		size int
 	)
-	size := 0
+
 	for {
-		size, err = r.Read(buf)
-		if err != nil {
+		if size, err = r.Read(buf); err != nil {
 			if err == io.EOF {
 				return nil
 			}
-			return err
+			return
 		}
 		if size < k {
 			b = buf[:size]
@@ -182,13 +186,13 @@ func priKeyIO(pri *rsa.PrivateKey, r io.Reader, w io.Writer, isEncrypt bool) err
 			b, err = rsa.DecryptPKCS1v15(rand.Reader, pri, b)
 		}
 		if err != nil {
-			return err
+			return
 		}
 		if _, err = w.Write(b); err != nil {
-			return err
+			return
 		}
 	}
-	return nil
+	return
 }
 
 // 公钥解密
@@ -264,24 +268,24 @@ func decrypt(random io.Reader, priv *rsa.PrivateKey, c *big.Int) (m *big.Int, er
 	var ir *big.Int
 	if random != nil {
 		var r *big.Int
-
 		for {
-			r, err = rand.Int(random, priv.N)
-			if err != nil {
+			if r, err = rand.Int(random, priv.N); err != nil {
 				return
 			}
 			if r.Cmp(bigZero) == 0 {
 				r = bigOne
 			}
 			var ok bool
-			ir, ok = modInverse(r, priv.N)
-			if ok {
+			if ir, ok = modInverse(r, priv.N); ok {
 				break
 			}
 		}
-		bigE := big.NewInt(int64(priv.E))
-		rpowe := new(big.Int).Exp(r, bigE, priv.N)
-		cCopy := new(big.Int).Set(c)
+		var (
+			bigE  = big.NewInt(int64(priv.E))
+			rpowe = new(big.Int).Exp(r, bigE, priv.N)
+			cCopy = new(big.Int).Set(c)
+		)
+
 		cCopy.Mul(cCopy, rpowe)
 		cCopy.Mod(cCopy, priv.N)
 		c = cCopy
@@ -338,8 +342,7 @@ func nonZeroRandomBytes(s []byte, rand io.Reader) (err error) {
 	}
 	for i := 0; i < len(s); i++ {
 		for s[i] == 0 {
-			_, err = io.ReadFull(rand, s[i:i+1])
-			if err != nil {
+			if _, err = io.ReadFull(rand, s[i:i+1]); err != nil {
 				return
 			}
 			s[i] ^= 0x42
