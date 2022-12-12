@@ -160,3 +160,8 @@ if err != nil {
 }
 fmt.Println("decrypt data :", decrypt)
 ```
+
+
+## License
+
+Licensed under either of Apache License, Version 2.0, [LICENSE](./LICENSE) at your option.

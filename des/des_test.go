@@ -6,6 +6,7 @@ import (
 	"github.com/houseme/gocrypto"
 )
 
+// Para is a struct for test
 type Para struct {
 	Key    []byte
 	Src    []byte

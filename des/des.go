@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package des implements the DES encryption algorithm.
 package des
 
 import (

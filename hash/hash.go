@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package hash for crypto Hash
 package hash
 
 import (
@@ -24,6 +25,7 @@ type hash struct {
 	hashType gocrypto.Hash
 }
 
+// NewHash new hash
 func NewHash(hashType gocrypto.Hash) *hash {
 	return &hash{hashType}
 }
@@ -45,6 +47,7 @@ type hmacHash struct {
 	key      []byte
 }
 
+// NewHMAC new hmac hash
 func NewHMAC(hashType gocrypto.Hash, key []byte) *hmacHash {
 	return &hmacHash{hashType, key}
 }

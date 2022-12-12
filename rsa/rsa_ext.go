@@ -6,7 +6,7 @@ package rsa
 // @File: rsa_ext
 // @Version: 1.0.0
 // @Date: 2021/8/10 15:24
-// @Package gorsa
+// @Package rsa
 
 import (
 	"bytes"
