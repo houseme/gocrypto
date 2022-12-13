@@ -24,8 +24,8 @@ const (
 	SHA256
 	SHA384
 	SHA512
-	SHA512_224
-	SHA512_256
+	Sha512224
+	Sha512256
 )
 
 // Encode defines the type of bytes encoded to string
@@ -52,6 +52,7 @@ const (
 	RSA Crypt = iota
 )
 
+// Padding defines padding types
 type Padding uint
 
 const (
@@ -59,6 +60,7 @@ const (
 	PaddingPKCS7
 )
 
+// Cipher defines cipher types
 type Cipher uint
 
 const (

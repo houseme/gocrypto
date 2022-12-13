@@ -53,13 +53,13 @@ var hashes = []hashTest{
 	},
 	{
 		src:        []byte("123456"),
-		hashType:   gocrypto.SHA512_256,
+		hashType:   gocrypto.Sha512256,
 		hashed:     "184b5379d5b5a7ab42d3de1d0ca1fedc1f0ffb14a7673ebd026a6369745deb72",
 		encodeType: gocrypto.HEX,
 	},
 	{
 		src:        []byte("123456"),
-		hashType:   gocrypto.SHA512_224,
+		hashType:   gocrypto.Sha512224,
 		hashed:     "007ca663c61310fbee4c1680a5bbe70071825079b23f092713383296",
 		encodeType: gocrypto.HEX,
 	},
@@ -124,14 +124,14 @@ var hms = []hashTest{
 	{
 		key:        []byte("D2LOfHWU7xlf8JbR"),
 		src:        []byte("123456"),
-		hashType:   gocrypto.SHA512_256,
+		hashType:   gocrypto.Sha512256,
 		hashed:     "163da5721b6460f5a0d7c5a0e899ac0c45f1b2bb3e0d146bb5685aa488b667d8",
 		encodeType: gocrypto.HEX,
 	},
 	{
 		key:        []byte("D2LOfHWU7xlf8JbR"),
 		src:        []byte("123456"),
-		hashType:   gocrypto.SHA512_224,
+		hashType:   gocrypto.Sha512224,
 		hashed:     "b4aacbc9183194363da6357082245face6258e8bcf7a8dc472ed97f2",
 		encodeType: gocrypto.HEX,
 	},

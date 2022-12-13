@@ -26,7 +26,7 @@ type desCrypt struct {
 	gocrypto.CipherCrypt
 }
 
-// NewDESCrypt news a DESCrypt pointer with key
+// NewDESCrypt news a DESCrypt pointer with a key
 func NewDESCrypt(key []byte) *desCrypt {
 	block, err := des.NewCipher(key)
 	if err != nil {
@@ -48,7 +48,7 @@ type tripleDESCrypt struct {
 	gocrypto.CipherCrypt
 }
 
-// NewTripleDESCrypt news a TripleDESCrypt pointer with key
+// NewTripleDESCrypt news a TripleDESCrypt pointer with a key
 func NewTripleDESCrypt(key []byte) *tripleDESCrypt {
 	if len(key) != 24 {
 		panic("triple des key length must be 24")

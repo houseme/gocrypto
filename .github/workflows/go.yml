@@ -1,4 +1,4 @@
-name: GoCrypto CI
+name: Go-Crypto CI
 
 on:
   push:

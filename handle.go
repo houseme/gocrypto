@@ -1,4 +1,4 @@
-// Copyright 2019 gocrypt Author. All Rights Reserved.
+// Copyright 2019 go-crypto Author. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,12 +25,15 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
-	"fmt"
+	"errors"
 	"hash"
 )
 
-// GetHash gets the crypto hash type & hashed data in different hash type
+// GetHash gets the crypto hash type & hashed data in different hash types
 func GetHash(data []byte, hashType Hash) (h crypto.Hash, hashed []byte, err error) {
+	if hashType > Sha512256 {
+		return h, hashed, errors.New("hashType unsupported")
+	}
 	nh, h := GetHashFunc(hashType)
 	hh := nh()
 	if _, err = hh.Write(data); err != nil {
@@ -40,7 +43,7 @@ func GetHash(data []byte, hashType Hash) (h crypto.Hash, hashed []byte, err erro
 	return
 }
 
-// GetHashFunc gets the crypto hash func & type in different hash type
+// GetHashFunc gets the crypto hash func & type in different hash types
 func GetHashFunc(hashType Hash) (f func() hash.Hash, h crypto.Hash) {
 	switch hashType {
 	case SHA1:
@@ -58,25 +61,23 @@ func GetHashFunc(hashType Hash) (f func() hash.Hash, h crypto.Hash) {
 	case SHA512:
 		f = sha512.New
 		h = crypto.SHA512
-	case SHA512_224:
+	case Sha512224:
 		f = sha512.New512_224
 		h = crypto.SHA512_224
-	case SHA512_256:
+	case Sha512256:
 		f = sha512.New512_256
 		h = crypto.SHA512_256
 	case MD5:
 		f = md5.New
 		h = crypto.MD5
 	default:
-		panic("unsupport hashType")
+		panic("unsupported hashType")
 	}
 	return
 }
 
 // DecodeString decodes string data to bytes in designed encoded type
-func DecodeString(data string, encodedType Encode) ([]byte, error) {
-	var keyDecoded []byte
-	var err error
+func DecodeString(data string, encodedType Encode) (keyDecoded []byte, err error) {
 	switch encodedType {
 	case String:
 		keyDecoded = []byte(data)
@@ -85,7 +86,7 @@ func DecodeString(data string, encodedType Encode) ([]byte, error) {
 	case Base64:
 		keyDecoded, err = base64.StdEncoding.DecodeString(data)
 	default:
-		return keyDecoded, fmt.Errorf("secretInfo PublicKeyDataType unsupport")
+		return keyDecoded, errors.New("secretInfo PublicKeyDataType unsupported")
 	}
 	return keyDecoded, err
 }
@@ -99,11 +100,11 @@ func ParsePrivateKey(privateKeyDecoded []byte, keyType Secret) (*rsa.PrivateKey,
 		keyParsed, err := x509.ParsePKCS8PrivateKey(privateKeyDecoded)
 		return keyParsed.(*rsa.PrivateKey), err
 	default:
-		return &rsa.PrivateKey{}, fmt.Errorf("secretInfo PrivateKeyDataType unsupport")
+		return &rsa.PrivateKey{}, errors.New("secretInfo PrivateKeyDataType unsupported")
 	}
 }
 
-// EncodeToString encodes data to string with encode type
+// EncodeToString encodes data to string with encode types
 func EncodeToString(data []byte, encodeType Encode) (string, error) {
 	switch encodeType {
 	case HEX:
@@ -113,7 +114,7 @@ func EncodeToString(data []byte, encodeType Encode) (string, error) {
 	case String:
 		return string(data), nil
 	default:
-		return "", fmt.Errorf("secretInfo OutputType unsupport")
+		return "", errors.New("secretInfo OutputType unsupported")
 	}
 }
 

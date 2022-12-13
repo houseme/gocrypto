@@ -26,21 +26,27 @@ import (
 )
 
 type rsaCrypt struct {
-	secretInfo Secret
+	secretInfo SecretInfo
 }
 
-// Secret .
-type Secret struct {
+// SecretInfo secret info
+type SecretInfo struct {
 	PublicKey          string
 	PublicKeyDataType  gocrypto.Encode
 	PrivateKey         string
 	PrivateKeyDataType gocrypto.Encode
 	PrivateKeyType     gocrypto.Secret
+	HashType           gocrypto.Hash
 }
 
 // NewRSACrypt init with the RSA secret info
-func NewRSACrypt(secretInfo Secret) *rsaCrypt {
+func NewRSACrypt(secretInfo SecretInfo) *rsaCrypt {
 	return &rsaCrypt{secretInfo: secretInfo}
+}
+
+// SetHashType set hash types
+func (rc *rsaCrypt) SetHashType(hashType gocrypto.Hash) {
+	rc.secretInfo.HashType = hashType
 }
 
 // Encrypt encrypts the given message with public key
@@ -59,10 +65,32 @@ func (rc *rsaCrypt) Encrypt(src string, outputDataType gocrypto.Encode) (dst str
 	if err != nil {
 		return
 	}
-	var dataEncrypted []byte
-	dataEncrypted, err = rsa.EncryptPKCS1v15(rand.Reader, pubKey.(*rsa.PublicKey), []byte(src))
-	if err != nil {
-		return
+	if secretInfo.HashType > gocrypto.Sha512256 {
+		return "", errors.New("secretInfo HashType can't be supported")
+	}
+	hash, _ := gocrypto.GetHashFunc(secretInfo.HashType)
+	var (
+		srcBytes      = []byte(src)
+		public        = pubKey.(*rsa.PublicKey)
+		random        = rand.Reader
+		msgLen        = len(srcBytes)
+		step          = public.Size() - 2*hash().Size() - 2
+		dataEncrypted []byte
+	)
+	for start := 0; start < msgLen; start += step {
+		var (
+			encryptedBlockBytes []byte
+			finish              = start + step
+		)
+		if finish > msgLen {
+			finish = msgLen
+		}
+
+		if encryptedBlockBytes, err = rsa.EncryptPKCS1v15(random, public, srcBytes[start:finish]); err != nil {
+			return "", err
+		}
+
+		dataEncrypted = append(dataEncrypted, encryptedBlockBytes...)
 	}
 	return gocrypto.EncodeToString(dataEncrypted, outputDataType)
 }
@@ -79,7 +107,7 @@ func (rc *rsaCrypt) Decrypt(src string, srcType gocrypto.Encode) (dst string, er
 	if err != nil {
 		return
 	}
-	prvKey, err := gocrypto.ParsePrivateKey(privateKeyDecoded, secretInfo.PrivateKeyType)
+	private, err := gocrypto.ParsePrivateKey(privateKeyDecoded, secretInfo.PrivateKeyType)
 	if err != nil {
 		return
 	}
@@ -87,11 +115,30 @@ func (rc *rsaCrypt) Decrypt(src string, srcType gocrypto.Encode) (dst string, er
 	if err != nil {
 		return
 	}
-	var dataDecrypted []byte
-	dataDecrypted, err = rsa.DecryptPKCS1v15(rand.Reader, prvKey, decodeData)
-	if err != nil {
-		return
+
+	var (
+		random        = rand.Reader
+		msgLen        = len(decodeData)
+		step          = private.PublicKey.Size()
+		dataDecrypted []byte
+	)
+	for start := 0; start < msgLen; start += step {
+		var (
+			decryptedBlockBytes []byte
+			finish              = start + step
+		)
+
+		if finish > msgLen {
+			finish = msgLen
+		}
+
+		if decryptedBlockBytes, err = rsa.DecryptPKCS1v15(random, private, decodeData[start:finish]); err != nil {
+			return
+		}
+
+		dataDecrypted = append(dataDecrypted, decryptedBlockBytes...)
 	}
+
 	return string(dataDecrypted), nil
 }
 
@@ -99,7 +146,7 @@ func (rc *rsaCrypt) Decrypt(src string, srcType gocrypto.Encode) (dst string, er
 // src the original unsigned data
 // hashType the type of hash ,such as MD5,SHA1...
 // outputDataType encode types of sign data, such as Base64,HEX
-func (rc *rsaCrypt) Sign(src string, hashType gocrypto.Hash, outputDataType gocrypto.Encode) (dst string, err error) {
+func (rc *rsaCrypt) Sign(src string, outputDataType gocrypto.Encode) (dst string, err error) {
 	secretInfo := rc.secretInfo
 	if secretInfo.PrivateKey == "" {
 		return "", errors.New("secretInfo PrivateKey can't be empty")
@@ -112,7 +159,11 @@ func (rc *rsaCrypt) Sign(src string, hashType gocrypto.Hash, outputDataType gocr
 	if err != nil {
 		return
 	}
-	cryptoHash, hashed, err := gocrypto.GetHash([]byte(src), hashType)
+	if secretInfo.HashType > gocrypto.Sha512256 {
+		return "", errors.New("secretInfo HashType can't be supported")
+	}
+
+	cryptoHash, hashed, err := gocrypto.GetHash([]byte(src), secretInfo.HashType)
 	if err != nil {
 		return
 	}
@@ -128,7 +179,7 @@ func (rc *rsaCrypt) Sign(src string, hashType gocrypto.Hash, outputDataType gocr
 // signedData the data signed with private key
 // hashType the type of hash ,such as MD5,SHA1...
 // signDataType encode type of sign data,such as Base64,HEX
-func (rc *rsaCrypt) VerifySign(src string, hashType gocrypto.Hash, signedData string, signDataType gocrypto.Encode) (bool, error) {
+func (rc *rsaCrypt) VerifySign(src, signedData string, signDataType gocrypto.Encode) (bool, error) {
 	secretInfo := rc.secretInfo
 	if secretInfo.PublicKey == "" {
 		return false, errors.New("secretInfo PublicKey can't be empty")
@@ -141,7 +192,12 @@ func (rc *rsaCrypt) VerifySign(src string, hashType gocrypto.Hash, signedData st
 	if err != nil {
 		return false, err
 	}
-	cryptoHash, hashed, err := gocrypto.GetHash([]byte(src), hashType)
+
+	if secretInfo.HashType > gocrypto.Sha512256 {
+		return false, errors.New("secretInfo HashType can't be supported")
+	}
+
+	cryptoHash, hashed, err := gocrypto.GetHash([]byte(src), secretInfo.HashType)
 	if err != nil {
 		return false, err
 	}
@@ -209,4 +265,102 @@ func (rc *rsaCrypt) DecryptByPublic(src string, srcType gocrypto.Encode) (dst st
 		return "", err
 	}
 	return output.String(), nil
+}
+
+// EncryptOAEP encrypts the given message with RSA-OAEP
+func (rc *rsaCrypt) EncryptOAEP(src string, outputDataType gocrypto.Encode) (dst string, err error) {
+	secretInfo := rc.secretInfo
+	if secretInfo.PublicKey == "" {
+		return "", errors.New("secretInfo PublicKey can't be empty")
+	}
+	pubKeyDecoded, err := gocrypto.DecodeString(secretInfo.PublicKey, secretInfo.PublicKeyDataType)
+	if err != nil {
+		return
+	}
+	pubKey, err := x509.ParsePKIXPublicKey(pubKeyDecoded)
+	if err != nil {
+		return
+	}
+
+	if secretInfo.HashType > gocrypto.Sha512256 {
+		return "", errors.New("secretInfo HashType can't be supported")
+	}
+	hash, _ := gocrypto.GetHashFunc(secretInfo.HashType)
+
+	var (
+		srcBytes      = []byte(src)
+		public        = pubKey.(*rsa.PublicKey)
+		random        = rand.Reader
+		msgLen        = len(srcBytes)
+		hashType      = hash()
+		step          = public.Size() - 2*hashType.Size() - 2
+		dataEncrypted []byte
+	)
+	for start := 0; start < msgLen; start += step {
+		var (
+			encryptedBlockBytes []byte
+			finish              = start + step
+		)
+		if finish > msgLen {
+			finish = msgLen
+		}
+
+		if encryptedBlockBytes, err = rsa.EncryptOAEP(hashType, random, public, srcBytes[start:finish], nil); err != nil {
+			return "", err
+		}
+
+		dataEncrypted = append(dataEncrypted, encryptedBlockBytes...)
+	}
+	return gocrypto.EncodeToString(dataEncrypted, outputDataType)
+}
+
+// DecryptOAEP decrypts a plaintext using RSA-OAEP
+func (rc *rsaCrypt) DecryptOAEP(src string, srcType gocrypto.Encode) (dst string, err error) {
+	secretInfo := rc.secretInfo
+	if secretInfo.PrivateKey == "" {
+		return "", errors.New("secretInfo PrivateKey can't be empty")
+	}
+	privateKeyDecoded, err := gocrypto.DecodeString(secretInfo.PrivateKey, secretInfo.PrivateKeyDataType)
+	if err != nil {
+		return
+	}
+	private, err := gocrypto.ParsePrivateKey(privateKeyDecoded, secretInfo.PrivateKeyType)
+	if err != nil {
+		return
+	}
+	decodeData, err := gocrypto.DecodeString(src, srcType)
+	if err != nil {
+		return
+	}
+
+	if secretInfo.HashType > gocrypto.Sha512256 {
+		return "", errors.New("secretInfo HashType can't be supported")
+	}
+	hash, _ := gocrypto.GetHashFunc(secretInfo.HashType)
+
+	var (
+		random         = rand.Reader
+		msgLen         = len(decodeData)
+		step           = private.PublicKey.Size()
+		hashType       = hash()
+		decryptedBytes []byte
+	)
+	for start := 0; start < msgLen; start += step {
+		var (
+			decryptedBlockBytes []byte
+			finish              = start + step
+		)
+
+		if finish > msgLen {
+			finish = msgLen
+		}
+
+		if decryptedBlockBytes, err = rsa.DecryptOAEP(hashType, random, private, decodeData[start:finish], nil); err != nil {
+			return "", err
+		}
+
+		decryptedBytes = append(decryptedBytes, decryptedBlockBytes...)
+	}
+
+	return string(decryptedBytes), nil
 }

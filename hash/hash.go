@@ -1,4 +1,4 @@
-// Copyright 2019 gocrypto Author. All Rights Reserved.
+// Copyright 2019 go-crypto Author. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,10 @@ func (h *hash) Get(src []byte) (dst []byte, err error) {
 
 // EncodeToString gets hashed bytes with defined hashType and then encode to string
 func (h *hash) EncodeToString(src []byte, encodeType gocrypto.Encode) (dst string, err error) {
-	data, err := GetHash(src, h.hashType)
+	var data []byte
+	if data, err = GetHash(src, h.hashType); err != nil {
+		return "", err
+	}
 	return gocrypto.EncodeToString(data, encodeType)
 }
 
@@ -63,7 +66,10 @@ func (hh *hmacHash) Get(src []byte) (dst []byte, err error) {
 
 // EncodeToString gets hmac hashed bytes with defined hashType & key then encode to string
 func (hh *hmacHash) EncodeToString(src []byte, encodeType gocrypto.Encode) (dst string, err error) {
-	data, err := GetHMACHash(src, hh.hashType, hh.key)
+	var data []byte
+	if data, err = GetHMACHash(src, hh.hashType, hh.key); err != nil {
+		return "", err
+	}
 	return gocrypto.EncodeToString(data, encodeType)
 }
 
@@ -75,7 +81,10 @@ func GetHash(src []byte, hashType gocrypto.Hash) (dst []byte, err error) {
 
 // GetHashEncodeToString gets hashed bytes with defined hashType and then encode to string
 func GetHashEncodeToString(encodeType gocrypto.Encode, src []byte, hashType gocrypto.Hash) (dst string, err error) {
-	data, err := GetHash(src, hashType)
+	var data []byte
+	if data, err = GetHash(src, hashType); err != nil {
+		return "", err
+	}
 	return gocrypto.EncodeToString(data, encodeType)
 }
 
@@ -90,6 +99,9 @@ func GetHMACHash(src []byte, hashType gocrypto.Hash, key []byte) (dst []byte, er
 
 // GetHMACHashEncodeToString gets hmac hashed bytes with defined hashType & key then encode to string
 func GetHMACHashEncodeToString(encodeType gocrypto.Encode, src []byte, hashType gocrypto.Hash, key []byte) (dst string, err error) {
-	data, err := GetHMACHash(src, hashType, key)
+	var data []byte
+	if data, err = GetHMACHash(src, hashType, key); err != nil {
+		return "", err
+	}
 	return gocrypto.EncodeToString(data, encodeType)
 }

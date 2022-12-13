@@ -1,4 +1,4 @@
-// Copyright 2019 gocrypt Author. All Rights Reserved.
+// Copyright 2019 go-crypto Author. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package gocrypt is a simple encryption and decryption package
+// Package gocrypto is a simple encryption and decryption package
 package gocrypto
 
 import (
@@ -20,14 +20,15 @@ import (
 	"fmt"
 )
 
+// CipherCrypt is a simple encryption and decryption package
 type CipherCrypt struct {
 	Block cipher.Block
 }
 
 // Encrypt encrypts src to dst with cipher & iv, if failed return error
 // src the original source bytes
-// c the defined cipher type,now support CBC,CFB,OFB,ECB
-// ivs the iv for CBC,CFB,OFB mode
+// c the defined cipher type,now support CBC, CFB, OFB, ECB
+// ivs the iv for CBC, CFB, OFB mode
 // dst the encrypted bytes
 func (cc *CipherCrypt) Encrypt(src []byte, c Cipher, ivs ...[]byte) (dst []byte, err error) {
 	block := cc.Block
@@ -48,7 +49,7 @@ func (cc *CipherCrypt) Encrypt(src []byte, c Cipher, ivs ...[]byte) (dst []byte,
 }
 
 // EncryptToString encrypts src then encodes data returned to string
-// encodeType now support String,HEX,Base64
+// encodeType now support String, HEX, Base64
 func (cc *CipherCrypt) EncryptToString(encodeType Encode, src []byte, c Cipher, ivs ...[]byte) (dst string, err error) {
 	data, err := cc.Encrypt(src, c, ivs...)
 	if err != nil {
@@ -59,8 +60,8 @@ func (cc *CipherCrypt) EncryptToString(encodeType Encode, src []byte, c Cipher, 
 
 // Decrypt decrypts src to dst with cipher & iv, if failed return error
 // src the original encrypted bytes
-// c the defined cipher type,now support CBC,CFB,OFB,ECB
-// ivs the iv for CBC,CFB,OFB mode
+// c the defined cipher type,now support CBC, CFB, OFB, ECB
+// ivs the iv for CBC, CFB, OFB mode
 // dst the decrypted bytes
 func (cc *CipherCrypt) Decrypt(src []byte, c Cipher, ivs ...[]byte) (dst []byte, err error) {
 	block := cc.Block
@@ -85,7 +86,7 @@ func (cc *CipherCrypt) Decrypt(src []byte, c Cipher, ivs ...[]byte) (dst []byte,
 }
 
 // DecryptToString decrypts src then encodes return data to string
-// encodeType now support String,HEX,Base64
+// encodeType now support String, HEX, Base64
 func (cc *CipherCrypt) DecryptToString(encodeType Encode, src []byte, c Cipher, ivs ...[]byte) (dst string, err error) {
 	data, err := cc.Decrypt(src, c, ivs...)
 	if err != nil {
