@@ -80,7 +80,7 @@ secretInfo := rsa.SecretInfo{
     PrivateKeyDataType: gocrypto.Base64,
     HashType:           gocrypto.SHA256,
 }
-
+handle := rsa.NewRSACrypt(secretInfo)
 ```
 
 ### 加密、解密、签名、验签
