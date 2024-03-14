@@ -189,7 +189,7 @@ type testEncryptOAEPStruct struct {
 }
 
 func TestEncryptDecryptOAEP(t *testing.T) {
-	sha256 := sha256.New()
+	hash := sha256.New()
 	n := new(big.Int)
 	d := new(big.Int)
 	for i, test := range testEncryptOAEPData {
@@ -201,12 +201,12 @@ func TestEncryptDecryptOAEP(t *testing.T) {
 
 		for j, message := range test.msgs {
 			label := []byte(fmt.Sprintf("hi#%d", j))
-			enc, err := rsa.EncryptOAEP(sha256, rand.Reader, &priv.PublicKey, message.in, label)
+			enc, err := rsa.EncryptOAEP(hash, rand.Reader, &priv.PublicKey, message.in, label)
 			if err != nil {
 				t.Errorf("#%d,%d: EncryptOAEP: %v", i, j, err)
 				continue
 			}
-			dec, err := rsa.DecryptOAEP(sha256, rand.Reader, priv, enc, label)
+			dec, err := rsa.DecryptOAEP(hash, rand.Reader, priv, enc, label)
 			if err != nil {
 				t.Errorf("#%d,%d: DecryptOAEP: %v", i, j, err)
 				continue

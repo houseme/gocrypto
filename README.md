@@ -1,4 +1,4 @@
-# GoCrypto使用说明
+# GoCrypto 使用说明
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/houseme/gocrypto.svg)](https://pkg.go.dev/github.com/houseme/gocrypto)
 [![GoCrypto CI](https://github.com/houseme/gocrypto/actions/workflows/go.yml/badge.svg)](https://github.com/houseme/gocrypto/actions/workflows/go.yml)
@@ -16,8 +16,8 @@ packaging:
 - The incoming return uses the string type uniformly to avoid conversion trouble
 - Supports RSAWithSHA1 and RSAWithSHA256 signature verification algorithms
 
-此版本新增了AES、DES、3DES、HMAC、HASH等常见加/解密及hash获取方式，结构作了些调整，由之前的版本更新到此版本时一定要注意引用方法包名的变化。 AES/DES块加密时，填充默认采用PKCS7 padding(
-如果块大小为64 位（8字节）时，此时PKCS7与PKCS5结果一致).
+此版本新增了 AES、DES、3DES、HMAC、HASH 等常见加/解密及 hash 获取方式，结构作了些调整，由之前的版本更新到此版本时一定要注意引用方法包名的变化。AES/DES 块加密时，填充默认采用 PKCS7 padding(
+如果块大小为 64 位（8 字节）时，此时 PKCS7 与 PKCS5 结果一致).
 
 ## get & import
 
@@ -29,7 +29,7 @@ go get -u -v github.com/houseme/gocrypto
 
 ## 使用方法
 
-### 1.构建需要加解密的类型handle
+### 1.构建需要加解密的类型 handle
 
 ```go
     handleRSA := rsa.NewRSACrypt(secretInfo) // RSA
@@ -63,11 +63,12 @@ go get -u -v github.com/houseme/gocrypto
 哈希运算/密钥相关的哈希运算。
 
 ```go
-    handle.Get([]byte("123456"))// 输出[]byte
-    handle.EncodeToString([]byte("123456"), gocrypto.HEX) // 输出为hex格式的字符串
+    handle.Get([]byte("123456"))// 输出 []byte
+handle.EncodeToString([]byte("123456"), gocrypto.HEX) // 输出为 hex 格式的字符串
+
 ```
 
-## RSA加密、解密、签名、验签
+## RSA 加密、解密、签名、验签
 
 ### 1.设置公私钥信息
 
@@ -85,7 +86,7 @@ handle := rsa.NewRSACrypt(secretInfo)
 
 ### 加密、解密、签名、验签
 
-#### （1）RSA加密 
+#### （1）RSA 加密 
 
 加密指定字符串，并以指定编码格式输出结果
 
@@ -98,7 +99,7 @@ if err != nil {
 fmt.Println("encrypt data :", encrypt)
 ```
 
-#### （2）RSA解密
+#### （2）RSA 解密
 
 解密指定格式编码后的加密串，返回原字符串
 
@@ -111,9 +112,9 @@ if err != nil {
 fmt.Println("decrypt data :", decrypt)
 ```
 
-#### （3）RSA签名
+#### （3）RSA 签名
 
-以指定摘要算法签名，并以指定编码格式输出结果，仅适用于RSA。
+以指定摘要算法签名，并以指定编码格式输出结果，仅适用于 RSA。
 
 ```go
 sign, err := handle.Sign("test", gocrypto.HEX)
@@ -124,9 +125,9 @@ if err != nil {
 fmt.Println("sign data :", sign)
 ```
 
-#### （4）RSA验签
+#### （4）RSA 验签
 
-验证字符串是否是以指定摘要算法编码的签名串的原始字符串，仅适用于RSA。
+验证字符串是否是以指定摘要算法编码的签名串的原始字符串，仅适用于 RSA。
 
 ```go
 verifySign, err := handle.VerifySign("test", sign, gocrypto.HEX)
@@ -137,7 +138,7 @@ if err != nil {
 fmt.Println("verifySign result :", verifySign)
 ```
 
-#### （5）RSA私钥加密
+#### （5）RSA 私钥加密
 
 加密指定字符串，并以指定编码格式输出结果
 
@@ -150,7 +151,7 @@ if err != nil {
 fmt.Println("encrypt data :", encrypt)
 ```
 
-#### （6）RSA公钥解密
+#### （6）RSA 公钥解密
 
 解密指定格式编码后的加密串，返回原字符串
 

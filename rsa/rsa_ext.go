@@ -75,7 +75,7 @@ func getPriKey(privateKey string, priType gocrypto.Encode, priKeyType gocrypto.S
 	return gocrypto.ParsePrivateKey(privateKeyDecoded, priKeyType)
 }
 
-// 公钥加密或解密byte
+// 公钥加密或解密 byte
 func pubKeyByte(pub *rsa.PublicKey, in []byte, isEncrypt bool) ([]byte, error) {
 	k := (pub.N.BitLen() + 7) / 8
 	if isEncrypt {
@@ -98,7 +98,7 @@ func pubKeyByte(pub *rsa.PublicKey, in []byte, isEncrypt bool) ([]byte, error) {
 	return io.ReadAll(out)
 }
 
-// 私钥加密或解密byte
+// 私钥加密或解密 byte
 func priKeyByte(pri *rsa.PrivateKey, in []byte, isEncrypt bool) ([]byte, error) {
 	k := (pri.N.BitLen() + 7) / 8
 	if isEncrypt {
@@ -121,7 +121,7 @@ func priKeyByte(pri *rsa.PrivateKey, in []byte, isEncrypt bool) ([]byte, error) 
 	return io.ReadAll(out)
 }
 
-// 公钥加密或解密Reader
+// 公钥加密或解密 Reader
 func pubKeyIO(pub *rsa.PublicKey, in io.Reader, out io.Writer, isEncrypt bool) (err error) {
 	k := (pub.N.BitLen() + 7) / 8
 	if isEncrypt {
@@ -158,10 +158,9 @@ func pubKeyIO(pub *rsa.PublicKey, in io.Reader, out io.Writer, isEncrypt bool) (
 			return
 		}
 	}
-	return
 }
 
-// 私钥加密或解密Reader
+// 私钥加密或解密 Reader
 func priKeyIO(pri *rsa.PrivateKey, r io.Reader, w io.Writer, isEncrypt bool) (err error) {
 	k := (pri.N.BitLen() + 7) / 8
 	if isEncrypt {
@@ -198,7 +197,6 @@ func priKeyIO(pri *rsa.PrivateKey, r io.Reader, w io.Writer, isEncrypt bool) (er
 			return
 		}
 	}
-	return
 }
 
 // 公钥解密
@@ -342,8 +340,7 @@ func copyWithLeftPad(dest, src []byte) {
 
 // 从crypto/rsa复制
 func nonZeroRandomBytes(s []byte, rand io.Reader) (err error) {
-	_, err = io.ReadFull(rand, s)
-	if err != nil {
+	if _, err = io.ReadFull(rand, s); err != nil {
 		return
 	}
 	for i := 0; i < len(s); i++ {

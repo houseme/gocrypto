@@ -229,8 +229,7 @@ func (rc *rsaCrypt) EncryptByPriKey(src string, outputDataType gocrypto.Encode) 
 	}
 
 	output := bytes.NewBuffer(nil)
-	err = priKeyIO(prvKey, bytes.NewReader([]byte(src)), output, true)
-	if err != nil {
+	if err = priKeyIO(prvKey, bytes.NewReader([]byte(src)), output, true); err != nil {
 		return "", err
 	}
 
@@ -260,8 +259,7 @@ func (rc *rsaCrypt) DecryptByPublic(src string, srcType gocrypto.Encode) (dst st
 	}
 
 	output := bytes.NewBuffer(nil)
-	err = pubKeyIO(pubKey.(*rsa.PublicKey), bytes.NewReader(decodeData), output, false)
-	if err != nil {
+	if err = pubKeyIO(pubKey.(*rsa.PublicKey), bytes.NewReader(decodeData), output, false); err != nil {
 		return "", err
 	}
 	return output.String(), nil
@@ -285,13 +283,13 @@ func (rc *rsaCrypt) EncryptOAEP(src string, outputDataType gocrypto.Encode) (dst
 	if secretInfo.HashType > gocrypto.Sha512256 {
 		return "", errors.New("secretInfo HashType can't be supported")
 	}
-	hash, _ := gocrypto.GetHashFunc(secretInfo.HashType)
 
 	var (
 		srcBytes      = []byte(src)
 		public        = pubKey.(*rsa.PublicKey)
 		random        = rand.Reader
 		msgLen        = len(srcBytes)
+		hash, _       = gocrypto.GetHashFunc(secretInfo.HashType)
 		hashType      = hash()
 		step          = public.Size() - 2*hashType.Size() - 2
 		dataEncrypted []byte
@@ -336,9 +334,9 @@ func (rc *rsaCrypt) DecryptOAEP(src string, srcType gocrypto.Encode) (dst string
 	if secretInfo.HashType > gocrypto.Sha512256 {
 		return "", errors.New("secretInfo HashType can't be supported")
 	}
-	hash, _ := gocrypto.GetHashFunc(secretInfo.HashType)
 
 	var (
+		hash, _        = gocrypto.GetHashFunc(secretInfo.HashType)
 		random         = rand.Reader
 		msgLen         = len(decodeData)
 		step           = private.PublicKey.Size()
